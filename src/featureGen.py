@@ -224,8 +224,8 @@ def get_insns_token_embeddings(embeddings, insn):
 
 
 def cal_operand_embedding(insnToken_embeddings, insn_opcode):
-    size = tf.to_float(tf.size(insnToken_embeddings))
-    operand_embedding = tf.subtract(tf.div(tf.reduce_sum(insnToken_embeddings, 0), size), tf.div(insn_opcode, size))
+    size = tf.compat.v1.to_float(tf.size(insnToken_embeddings))
+    operand_embedding = tf.subtract(tf.compat.v1.div(tf.reduce_sum(insnToken_embeddings, 0), size), tf.compat.v1.div(insn_opcode, size))
     return operand_embedding
 
 
@@ -255,13 +255,13 @@ def buildAndTraining(article, blockBoundaryIndex, insnStartingIndices, indexToCu
     g = tf.Graph()
     with g.as_default():
     # Input data.
-        train_labels = tf.placeholder(tf.int32, shape=[batch_size, 1])
-        train_inputs = tf.placeholder(tf.int32, shape=[batch_size, 2, 5])
+        train_labels = tf.compat.v1.placeholder(tf.int32, shape=[batch_size, 1])
+        train_inputs = tf.compat.v1.placeholder(tf.int32, shape=[batch_size, 2, 5])
         valid_dataset = tf.constant(valid_examples, dtype=tf.int32)
 
         # Ops and variables pinned to the CPU because of missing GPU implementation
         with tf.device('/cpu:0'):
-            embeddings = tf.Variable(tf.random_uniform([dic_size, embedding_size], -1.0, 1.0))
+            embeddings = tf.Variable(tf.random.uniform([dic_size, embedding_size], -1.0, 1.0))
 
             # TODO: needs to be reinitilized for every random walk
             # rw_embed = tf.Variable(tf.random_uniform([1, 2 * embedding_size], -1.0, 1.0))
@@ -285,14 +285,14 @@ def buildAndTraining(article, blockBoundaryIndex, insnStartingIndices, indexToCu
                 has_next = tf.not_equal(nextInsn_size, tf.Variable(0))
                 prevInsn_embedding = tf.cond(has_prev, 
                     lambda: cal_insn_embedding(embeddings, prevInsn, prevInsn_size), 
-                    lambda: tf.random_uniform([2 * embedding_size], -1.0, 1.0))
+                    lambda: tf.random.uniform([2 * embedding_size], -1.0, 1.0))
                 nextInsn_embedding = tf.cond(has_next, 
                     lambda: cal_insn_embedding(embeddings, nextInsn, nextInsn_size), 
-                    lambda: tf.random_uniform([2 * embedding_size], -1.0, 1.0))
+                    lambda: tf.random.uniform([2 * embedding_size], -1.0, 1.0))
 
                 
                 # currInsn = tf.div(tf.add(tf.add(prevInsn_embedding, nextInsn_embedding), rw_embed), 3.0)
-                currInsn = tf.div(tf.add(prevInsn_embedding, nextInsn_embedding), 2.0)
+                currInsn = tf.compat.v1.div(tf.add(prevInsn_embedding, nextInsn_embedding), 2.0)
                 currInsn = tf.reshape(currInsn, [1, 2 * embedding_size])
                 temp_embeddings = tf.concat([temp_embeddings, currInsn], 0)
 

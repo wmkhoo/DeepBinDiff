@@ -31,8 +31,8 @@ def similarity(mat_a, mat_b):
 
 # similarity function, GPU speed up
 def similarity_gpu(mat_a, mat_b):
-    funca = tf.placeholder(tf.float32, shape=mat_a.shape)
-    funcb = tf.placeholder(tf.float32, shape=mat_b.shape)
+    funca = tf.compat.v1.placeholder(tf.float32, shape=mat_a.shape)
+    funcb = tf.compat.v1.placeholder(tf.float32, shape=mat_b.shape)
     mul = tf.matmul(funca, funcb, transpose_b=True)
     na = tf.norm(funca, axis=1, keepdims=True)
     nb = tf.norm(funcb, axis=1, keepdims=True)

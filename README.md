@@ -1,20 +1,20 @@
 # DeepBinDiff
 
-This is the official repository for DeepBinDiff, which is a fine-grained binary diffing tool for x86 binaries. We will actively update it.
+This is a fork of [DeepBinDiff](https://github.com/yueduan/DeepBinDiff), meant for use with Tensorflow 2.3.1.
 
 ### Paper
-Please consider citing our paper if you find the code useful.
 
 Yue Duan, Xuezixiang Li, Jinghan Wang, and Heng Yin, "DeepBinDiff: Learning Program-Wide Code Representations for Binary Diffing", NDSS'2020
 
 
 ### Requirements:
 
-* tensorflow (2.0 > tensorflow version >= 1.14.0)
+* tensorflow 2.3.1
 * gensim
 * angr
 * networkx
 * lapjv
+* sklearn
 
 
 
