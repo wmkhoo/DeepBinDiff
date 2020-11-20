@@ -1,6 +1,6 @@
 # DeepBinDiff
 
-This is a fork of [DeepBinDiff](https://github.com/yueduan/DeepBinDiff), meant for use with Tensorflow 2.3.1.
+This is a fork of [DeepBinDiff](https://github.com/yueduan/DeepBinDiff), meant for use with Tensorflow 2.3.1 on Ubuntu 20.04 64-bit.
 
 ### Paper
 
