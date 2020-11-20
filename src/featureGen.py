@@ -299,7 +299,7 @@ def buildAndTraining(article, blockBoundaryIndex, insnStartingIndices, indexToCu
             insn_embeddings = tf.slice(temp_embeddings, [1, 0], [batch_size, 2 * embedding_size])
 
             # Construct the variables for the NCE loss
-            nce_weights = tf.Variable(tf.truncated_normal([dic_size, 2 * embedding_size], stddev=1.0 / math.sqrt(2 * embedding_size)))
+            nce_weights = tf.Variable(tf.random.truncated_normal([dic_size, 2 * embedding_size], stddev=1.0 / math.sqrt(2 * embedding_size)))
             nce_biases = tf.Variable(tf.zeros([dic_size]))
 
         # Compute the average NCE loss for the batch.
