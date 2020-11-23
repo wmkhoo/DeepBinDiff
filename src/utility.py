@@ -34,10 +34,10 @@ def similarity_gpu(mat_a, mat_b):
     funca = tf.compat.v1.placeholder(tf.float32, shape=mat_a.shape)
     funcb = tf.compat.v1.placeholder(tf.float32, shape=mat_b.shape)
     mul = tf.matmul(funca, funcb, transpose_b=True)
-    na = tf.norm(funca, axis=1, keepdims=True)
-    nb = tf.norm(funcb, axis=1, keepdims=True)
+    na = tf.norm(tensor=funca, axis=1, keepdims=True)
+    nb = tf.norm(tensor=funcb, axis=1, keepdims=True)
     result =  mul / tf.matmul(na, nb, transpose_b=True)
-    with tf.Session() as sess:
+    with tf.compat.v1.Session() as sess:
         return sess.run(result, feed_dict={funca: mat_a, funcb: mat_b})
 
 
