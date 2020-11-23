@@ -212,7 +212,7 @@ def generate_batch(article, blockBoundaryIdx, insnStartingIndices, indexToCurren
 
 
 def get_insns_token_embeddings(embeddings, insn):
-    return tf.nn.embedding_lookup(embeddings, insn[1:insn[0]])
+    return tf.nn.embedding_lookup(params=embeddings, ids=insn[1:insn[0]])
 
 
 # def zero_embedding():
@@ -224,8 +224,8 @@ def get_insns_token_embeddings(embeddings, insn):
 
 
 def cal_operand_embedding(insnToken_embeddings, insn_opcode):
-    size = tf.compat.v1.to_float(tf.size(insnToken_embeddings))
-    operand_embedding = tf.subtract(tf.compat.v1.div(tf.reduce_sum(insnToken_embeddings, 0), size), tf.compat.v1.div(insn_opcode, size))
+    size = tf.cast(tf.size(input=insnToken_embeddings), dtype=tf.float32)
+    operand_embedding = tf.subtract(tf.compat.v1.div(tf.reduce_sum(input_tensor=insnToken_embeddings, axis=0), size), tf.compat.v1.div(insn_opcode, size))
     return operand_embedding
 
 
@@ -234,7 +234,7 @@ def cal_insn_embedding(embeddings, insn, insn_size):
     insn_opcode = insnToken_embeddings[0]
 
     has_no_operand = tf.equal(insn_size, tf.Variable(1))
-    insn_operand = tf.cond(has_no_operand, 
+    insn_operand = tf.cond(pred=has_no_operand, 
         true_fn=lambda: tf.zeros([embedding_size]), 
         false_fn=lambda: cal_operand_embedding(insnToken_embeddings, insn_opcode))
 
@@ -283,12 +283,12 @@ def buildAndTraining(article, blockBoundaryIndex, insnStartingIndices, indexToCu
 
                 has_prev = tf.not_equal(prevInsn_size, tf.Variable(0))
                 has_next = tf.not_equal(nextInsn_size, tf.Variable(0))
-                prevInsn_embedding = tf.cond(has_prev, 
-                    lambda: cal_insn_embedding(embeddings, prevInsn, prevInsn_size), 
-                    lambda: tf.random.uniform([2 * embedding_size], -1.0, 1.0))
-                nextInsn_embedding = tf.cond(has_next, 
-                    lambda: cal_insn_embedding(embeddings, nextInsn, nextInsn_size), 
-                    lambda: tf.random.uniform([2 * embedding_size], -1.0, 1.0))
+                prevInsn_embedding = tf.cond(pred=has_prev, 
+                    true_fn=lambda: cal_insn_embedding(embeddings, prevInsn, prevInsn_size), 
+                    false_fn=lambda: tf.random.uniform([2 * embedding_size], -1.0, 1.0))
+                nextInsn_embedding = tf.cond(pred=has_next, 
+                    true_fn=lambda: cal_insn_embedding(embeddings, nextInsn, nextInsn_size), 
+                    false_fn=lambda: tf.random.uniform([2 * embedding_size], -1.0, 1.0))
 
                 
                 # currInsn = tf.div(tf.add(tf.add(prevInsn_embedding, nextInsn_embedding), rw_embed), 3.0)
@@ -306,7 +306,7 @@ def buildAndTraining(article, blockBoundaryIndex, insnStartingIndices, indexToCu
         # tf.nce_loss automatically draws a new sample of the negative labels each
         # time we evaluate the loss.
         # cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=hidden_out, labels=train_one_hot))
-        loss = tf.reduce_mean(tf.nn.nce_loss(weights=nce_weights,
+        loss = tf.reduce_mean(input_tensor=tf.nn.nce_loss(weights=nce_weights,
                                 biases=nce_biases,
                                 labels=train_labels,
                                 inputs=insn_embeddings,
@@ -314,20 +314,20 @@ def buildAndTraining(article, blockBoundaryIndex, insnStartingIndices, indexToCu
                                 num_classes=dic_size))
 
         # Construct the SGD optimizer using a learning rate of 1.0.
-        optimizer = tf.train.GradientDescentOptimizer(1.0).minimize(loss)
+        optimizer = tf.compat.v1.train.GradientDescentOptimizer(1.0).minimize(loss)
 
         # Compute the cosine similarity between minibatch examples and all embeddings.
-        norm = tf.sqrt(tf.reduce_sum(tf.square(embeddings), 1, keepdims=True))
+        norm = tf.sqrt(tf.reduce_sum(input_tensor=tf.square(embeddings), axis=1, keepdims=True))
         normalized_embeddings = embeddings / norm
         # valid_embeddings = tf.nn.embedding_lookup(normalized_embeddings, valid_dataset)
         # similarity = tf.matmul(valid_embeddings, normalized_embeddings, transpose_b=True)
 
         # Add variable initializer.
-        init = tf.global_variables_initializer()
+        init = tf.compat.v1.global_variables_initializer()
 
 
     # training
-    with tf.Session(graph=g) as session:
+    with tf.compat.v1.Session(graph=g) as session:
         # We must initialize all variables before we use them.
         init.run(session=session)
         print('Initialized')
